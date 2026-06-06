@@ -1,12 +1,12 @@
 const transactions = [
-  { id: "TX01", from: "An", to: "Bình", amount: 35, fee: 3, required: "signed", signed: true, balance: 80 },
-  { id: "TX02", from: "Café", to: "Nhà cung cấp", amount: 18, fee: 2, required: "signed", signed: true, balance: 45 },
-  { id: "TX03", from: "Châu", to: "Dũng", amount: 92, fee: 4, required: "signed", signed: true, balance: 50 },
-  { id: "TX04", from: "Mai", to: "Hà", amount: 14, fee: 1, required: "signed", signed: false, balance: 70 },
-  { id: "TX05", from: "Kho bạc", to: "Miner", amount: 60, fee: 5, required: "signed", signed: true, balance: 120 },
-  { id: "TX06", from: "Oracle", to: "Contract", amount: 1, fee: 2, required: "oracle-data", signed: true, balance: 10, hasOracleData: false },
-  { id: "TX07", from: "Lan", to: "Minh", amount: 22, fee: 2, required: "signed", signed: true, balance: 40 },
-  { id: "TX08", from: "Shop", to: "Bank", amount: 130, fee: 6, required: "signed", signed: true, balance: 180 }
+  { id: "TX01", type: "TRANSFER", from: "An", to: "Bình", amount: 35, fee: 3, minFee: 1, required: "signature", signed: true, balance: 80, nonce: 1 },
+  { id: "TX02", type: "TOKEN_TRANSFER", from: "Café", to: "TokenContract", amount: 18, fee: 2, minFee: 1, required: "calldata + signature", calldata: true, signed: true, balance: 45, nonce: 4 },
+  { id: "TX03", type: "TRANSFER", from: "Châu", to: "Dũng", amount: 92, fee: 4, minFee: 1, required: "signature", signed: true, balance: 50, nonce: 7 },
+  { id: "TX04", type: "TRANSFER", from: "Mai", to: "Hà", amount: 14, fee: 1, minFee: 1, required: "signature", signed: false, balance: 70, nonce: 2 },
+  { id: "TX05", type: "TRANSFER", from: "Kho bạc", to: "Miner", amount: 60, fee: 5, minFee: 1, required: "signature", signed: true, balance: 120, nonce: 9 },
+  { id: "TX06", type: "ORACLE_UPDATE", from: "Oracle", to: "PriceContract", amount: 1, fee: 2, minFee: 1, required: "oracle data + signature", signed: true, balance: 10, hasOracleData: false, nonce: 3 },
+  { id: "TX07", type: "DEPENDENT_TX", from: "Lan", to: "Minh", amount: 22, fee: 2, minFee: 1, required: "parent TX02 + signature", signed: true, balance: 40, dependsOn: "TX02", nonce: 5 },
+  { id: "TX08", type: "CONTRACT_CALL", from: "Shop", to: "BankContract", amount: 0, fee: 6, minFee: 2, required: "calldata + signature", calldata: true, signed: true, balance: 180, nonce: 11 }
 ];
 
 const steps = [
@@ -46,7 +46,7 @@ const dictionary = {
 
 const quizGates = {
   0: { q: "Bạn đang đóng vai gì trong mô phỏng này?", a: 0, options: ["Một node kiểm tra và chấp nhận block theo rule", "Một ngân hàng trung tâm quyết định mọi giao dịch", "Một ví chỉ gửi tiền nhưng không kiểm tra gì"] },
-  1: { q: "Bạn chọn TX03 và bị transaction gate từ chối. Lý do hợp lý nhất là gì?", a: 1, options: ["Fee của TX03 quá thấp", "Sender không đủ balance cho amount + fee", "Hash của block chưa bắt đầu bằng 00"] },
+  1: { q: "Bạn nhìn thấy TX03 có amount 92, fee 4, balance 50. Vì sao transaction gate từ chối TX03?", a: 1, options: ["Vì TX03 thiếu calldata", "Vì sender cần 96 nhưng chỉ có balance 50", "Vì previous hash không khớp"] },
   2: { q: "Vì sao block ứng viên có giao dịch hợp lệ vẫn chưa được accept?", a: 2, options: ["Vì mempool bị rỗng", "Vì chưa có tên miner", "Vì hash chưa đạt difficulty nên mining gate chưa qua"] },
   3: { q: "Bạn nhập nhiều nonce và hash thay đổi liên tục. Điều này cho thấy gì?", a: 0, options: ["Nonce thay đổi đầu vào hash của block", "Nonce là số thứ tự transaction", "Nonce càng lớn thì chắc chắn càng đúng"] },
   4: { q: "Vì sao Auto-mine phải thử nhiều nonce trước khi block được chấp nhận?", a: 1, options: ["Vì node không biết sender là ai", "Vì cần tìm nonce làm hash đạt difficulty target", "Vì mempool chỉ cho chọn một giao dịch"] },
@@ -58,7 +58,7 @@ const quizGates = {
 };
 
 const hints = {
-  1: "Đừng nhìn fee trước. Hãy kiểm tra sender có đủ balance và transaction có đủ dữ liệu bắt buộc không.",
+  1: "Đọc rule như checklist: fee có đủ min fee không, balance có đủ amount + fee không, dữ liệu bắt buộc có mặt không, dependency đã được chọn chưa.",
   2: "So sánh transaction gate và mining gate: một gate kiểm tra dữ liệu, gate kia kiểm tra Proof-of-Work.",
   3: "Đừng cố đoán nonce đúng ngay. Hãy quan sát mỗi nonce làm hash đổi như thế nào.",
   4: "Mining là thử nhiều nonce cho đến khi hash đạt rule, không phải giải ngược hash.",
@@ -131,16 +131,23 @@ async function sha256(text) {
 }
 
 function txValid(tx) {
-  if (tx.balance < tx.amount + tx.fee) return false;
+  if (tx.fee < tx.minFee) return false;
+  if (tx.amount > 0 && tx.balance < tx.amount + tx.fee) return false;
   if (!tx.signed) return false;
+  if ((tx.type === "TOKEN_TRANSFER" || tx.type === "CONTRACT_CALL") && !tx.calldata) return false;
   if (tx.required === "oracle-data" && !tx.hasOracleData) return false;
+  if (tx.type === "ORACLE_UPDATE" && !tx.hasOracleData) return false;
+  if (tx.dependsOn && !state.selectedTx.has(tx.dependsOn)) return false;
   return true;
 }
 
 function txReason(tx) {
-  if (tx.balance < tx.amount + tx.fee) return "sender không đủ balance";
+  if (tx.fee < tx.minFee) return `fee thấp hơn min fee ${tx.minFee}`;
+  if (tx.amount > 0 && tx.balance < tx.amount + tx.fee) return `sender không đủ balance: cần ${tx.amount + tx.fee}, có ${tx.balance}`;
   if (!tx.signed) return "thiếu chữ ký/validation data";
-  if (tx.required === "oracle-data" && !tx.hasOracleData) return "thiếu oracle data bắt buộc";
+  if ((tx.type === "TOKEN_TRANSFER" || tx.type === "CONTRACT_CALL") && !tx.calldata) return "thiếu calldata cho contract";
+  if (tx.type === "ORACLE_UPDATE" && !tx.hasOracleData) return "thiếu oracle data bắt buộc";
+  if (tx.dependsOn && !state.selectedTx.has(tx.dependsOn)) return `phụ thuộc ${tx.dependsOn} nhưng parent chưa được chọn`;
   return "hợp lệ";
 }
 
@@ -289,18 +296,26 @@ function renderTransactions() {
   return `
     <div class="work-card">
       <h3>Mempool</h3>
-      <p>Chọn tối đa 3 giao dịch để tạo block ứng viên. Hệ thống chưa đánh dấu trước giao dịch nào sai.</p>
+      <p>Chọn tối đa 3 giao dịch để tạo block ứng viên. Hệ thống chưa đánh dấu trước giao dịch nào sai, nhưng bạn có đủ dữ kiện để kiểm tra.</p>
+      <div class="mission-card">
+        <h3>Rule của transaction gate</h3>
+        <p>Một giao dịch đi qua gate nếu: fee ≥ min fee; sender đủ balance cho amount + fee; có chữ ký; contract call có calldata; oracle update có oracle data; dependent transaction có parent được chọn.</p>
+      </div>
       <div class="tx-grid">
         ${transactions.map((tx) => {
           const checked = state.selectedTx.has(tx.id);
           const revealed = state.revealedTx.has(tx.id);
           const ok = txValid(tx);
+          const needs = tx.amount + tx.fee;
           return `
             <label class="tx-card ${revealed ? ok ? "revealed-good" : "revealed-bad" : ""}">
               <input type="checkbox" data-tx="${tx.id}" ${checked ? "checked" : ""}>
               <span>
-                <p class="tx-title">${tx.id}: ${tx.from} → ${tx.to}</p>
-                <p class="tx-meta">Amount ${tx.amount}, fee ${tx.fee}, balance ${tx.balance}</p>
+                <p class="tx-title">${tx.id}: ${tx.type}</p>
+                <p class="tx-meta">${tx.from} → ${tx.to}</p>
+                <p class="tx-meta">Amount ${tx.amount}, fee ${tx.fee}, min fee ${tx.minFee}, balance ${tx.balance}, cần ${needs}</p>
+                <p class="tx-meta">Required: ${tx.required}. Có chữ ký: ${tx.signed ? "có" : "không"}. Calldata: ${tx.calldata ? "có" : "không cần/không có"}. Oracle data: ${tx.hasOracleData ? "có" : tx.type === "ORACLE_UPDATE" ? "không" : "không cần"}.</p>
+                ${tx.dependsOn ? `<p class="tx-meta">Dependency: cần chọn parent ${tx.dependsOn}</p>` : ""}
                 ${revealed ? `<p class="tx-meta"><strong>${ok ? "Passed" : "Failed"}:</strong> ${txReason(tx)}</p>` : ""}
               </span>
             </label>
