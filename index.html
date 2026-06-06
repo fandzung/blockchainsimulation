@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mô phỏng đào Blockchain</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Mô phỏng trên lớp</p>
+        <h1>Mô phỏng đào Blockchain</h1>
+      </div>
+      <div class="topbar-actions">
+        <button id="resetBtn" class="ghost">Làm lại</button>
+        <button id="validateBtn">Kiểm tra chuỗi</button>
+      </div>
+    </header>
+
+    <section class="guide-panel" aria-labelledby="guideTitle">
+      <div class="guide-head">
+        <div>
+          <p class="eyebrow">Cách chạy mô phỏng</p>
+          <h2 id="guideTitle">Hành trình đi qua cơ chế Blockchain</h2>
+        </div>
+        <div class="role-tabs" role="tablist" aria-label="Guide role">
+          <button id="studentGuideTab" class="role-tab active" type="button">Sinh viên</button>
+          <button id="instructorGuideTab" class="role-tab" type="button">Giảng viên</button>
+        </div>
+      </div>
+
+      <div id="studentGuide" class="guide-content active">
+        <ol class="guide-steps">
+          <li><strong>Chọn giao dịch:</strong> chọn tối đa 3 giao dịch trong mempool.</li>
+          <li><strong>Tạo block ứng viên:</strong> quan sát hash block trước, Merkle root, nonce, độ khó và phần thưởng.</li>
+          <li><strong>Đào block:</strong> thử nhập nonce thủ công hoặc dùng Tự động đào cho đến khi hash đạt target.</li>
+          <li><strong>Kiểm tra chuỗi:</strong> xem mỗi block liên kết với block trước bằng previous hash như thế nào.</li>
+          <li><strong>Chạy thử nghiệm:</strong> dùng sửa dữ liệu và phân nhánh để thấy vì sao kiểm tra hợp lệ và đồng thuận quan trọng.</li>
+          <li><strong>Hoàn thành bài nộp:</strong> trả lời bài trắc nghiệm. Nhóm hoàn thành khi trạng thái hiện Đã hoàn thành.</li>
+        </ol>
+      </div>
+
+      <div id="instructorGuide" class="guide-content">
+        <div class="instructor-grid">
+          <div>
+            <h3>Luồng gợi ý</h3>
+            <ol class="guide-steps">
+              <li>Bắt đầu với độ khó Dễ hoặc Bình thường.</li>
+              <li>Hỏi vì sao giao dịch không hợp lệ bị chặn trước khi đi tiếp.</li>
+              <li>Dừng trước khi đào và hỏi dữ liệu nào đi vào block hash.</li>
+              <li>Sau khi đào, nhấn mạnh rằng mạng thật phải kiểm tra hợp lệ trước khi chấp nhận block.</li>
+              <li>Dùng sửa dữ liệu để thảo luận về liên kết hash và việc sửa lịch sử.</li>
+              <li>Dùng phân nhánh để thảo luận về bất đồng tạm thời và đồng thuận.</li>
+            </ol>
+          </div>
+          <div>
+            <h3>Điều kiện hoàn thành</h3>
+            <p>Đặt điểm đạt trong phần trắc nghiệm. Một nhóm chỉ hoàn thành bài nộp khi trạng thái quiz trở thành <strong>Đã hoàn thành</strong>.</p>
+            <p>Dùng feedback của quiz để debrief: mỗi câu trả lời đều có cơ chế và lý do cơ chế đó tồn tại.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="gate-panel" aria-labelledby="gateTitle">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Cổng cơ chế</p>
+          <h2 id="gateTitle">Vừa xảy ra điều gì?</h2>
+        </div>
+        <span id="gateResult" class="pill neutral">Đang chờ thao tác</span>
+      </div>
+      <div class="gate-grid">
+        <div>
+          <span>Cơ chế hiện tại</span>
+          <strong id="gateMechanism">Bắt đầu bằng cách chọn giao dịch.</strong>
+        </div>
+        <div>
+          <span>Vì sao tồn tại</span>
+          <p id="gateMeaning">Quy trình blockchain là một chuỗi cổng kiểm tra. Mỗi cổng hoặc cho dữ liệu đi tiếp, hoặc từ chối vì một lý do cụ thể.</p>
+        </div>
+        <div>
+          <span>Thử gì tiếp theo</span>
+          <p id="gateNext">Hãy thử chọn cả giao dịch hợp lệ và không hợp lệ, rồi quan sát hệ thống cho phép điều gì.</p>
+        </div>
+      </div>
+    </section>
+
+    <main class="layout">
+      <section class="panel mempool-panel" aria-labelledby="mempoolTitle">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Bước 1</p>
+            <h2 id="mempoolTitle">Mempool</h2>
+          </div>
+          <span id="selectedCount" class="pill">Đã chọn 0/3</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Chọn</th>
+                <th>TX</th>
+                <th>Từ</th>
+                <th>Đến</th>
+                <th>Số tiền</th>
+                <th>Fee</th>
+                <th>Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody id="mempoolRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel builder-panel" aria-labelledby="builderTitle">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Bước 2</p>
+            <h2 id="builderTitle">Tạo và đào block</h2>
+          </div>
+          <span id="miningStatus" class="pill neutral">Sẵn sàng</span>
+        </div>
+
+        <div class="controls">
+          <label>
+            Mã miner
+            <input id="minerInput" value="Team A" maxlength="24" />
+          </label>
+          <label>
+            Độ khó
+            <select id="difficultyInput">
+              <option value="1">Dễ: hash bắt đầu bằng 0</option>
+              <option value="2" selected>Bình thường: hash bắt đầu bằng 00</option>
+              <option value="3">Khó: hash bắt đầu bằng 000</option>
+              <option value="4">Rất khó: hash bắt đầu bằng 0000</option>
+            </select>
+          </label>
+          <label>
+            Nonce
+            <input id="nonceInput" inputmode="numeric" value="0" />
+          </label>
+        </div>
+
+        <div class="block-preview">
+          <div>
+            <span>Thứ tự block</span>
+            <strong id="nextIndex">1</strong>
+          </div>
+          <div>
+            <span>Hash block trước</span>
+            <code id="previousHash">000000000000</code>
+          </div>
+          <div>
+            <span>Merkle Root</span>
+            <code id="merkleRoot">-</code>
+          </div>
+          <div>
+            <span>Phần thưởng</span>
+            <strong id="rewardPreview">0</strong>
+          </div>
+        </div>
+
+        <div class="hash-box">
+          <span>Hash hiện tại</span>
+          <code id="currentHash">Chọn giao dịch để bắt đầu</code>
+        </div>
+
+        <div class="button-row">
+          <button id="checkNonceBtn" class="ghost">Kiểm tra nonce</button>
+          <button id="mineBtn">Tự động đào</button>
+          <button id="stopMineBtn" class="danger" disabled>Dừng</button>
+        </div>
+      </section>
+
+      <section class="panel chain-panel" aria-labelledby="chainTitle">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Bước 3</p>
+            <h2 id="chainTitle">Blockchain</h2>
+          </div>
+          <span id="chainStatus" class="pill neutral">Chưa có block</span>
+        </div>
+        <div id="chainList" class="chain-list"></div>
+      </section>
+
+      <section class="panel lab-panel" aria-labelledby="labTitle">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Bước 4</p>
+            <h2 id="labTitle">Thử nghiệm Tamper và Fork</h2>
+          </div>
+        </div>
+        <div class="lab-actions">
+          <button id="tamperBtn" class="ghost">Sửa block cuối</button>
+          <button id="forkBtn" class="ghost">Tạo fork demo</button>
+        </div>
+        <div id="forkLab" class="fork-lab empty">Hãy đào ít nhất một block, sau đó tạo fork demo.</div>
+      </section>
+
+      <section class="panel quiz-panel" aria-labelledby="quizTitle">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Kiểm tra bài nộp</p>
+            <h2 id="quizTitle">Trắc nghiệm khái niệm</h2>
+          </div>
+          <span id="quizStatus" class="pill neutral">Chưa nộp</span>
+        </div>
+        <div class="quiz-config">
+          <label>
+            Sinh viên / Nhóm
+            <input id="studentNameInput" placeholder="Nhóm 1" maxlength="40" />
+          </label>
+          <label>
+            Điểm đạt
+            <select id="passingScoreInput">
+              <option value="60">60%</option>
+              <option value="70" selected>70%</option>
+              <option value="80">80%</option>
+              <option value="90">90%</option>
+            </select>
+          </label>
+        </div>
+        <div id="quizList" class="quiz-list"></div>
+        <div class="quiz-actions">
+          <button id="submitQuizBtn">Nộp bài</button>
+          <button id="resetQuizBtn" class="ghost">Làm lại quiz</button>
+        </div>
+        <div id="quizResult" class="quiz-result empty">
+          Hoàn thành mô phỏng, sau đó trả lời quiz để kết thúc bài nộp.
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>Luồng học: Giao dịch -> Mempool -> Block -> Hash -> Đào block -> Chain -> Sửa dữ liệu -> Đồng thuận.</span>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
