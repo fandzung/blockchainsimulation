@@ -1,63 +1,53 @@
-# Mô phỏng đào Blockchain
+# Hành trình Blockchain
 
-Web app tĩnh dùng trên lớp để dạy luồng vận hành cơ bản của blockchain:
+Web app tĩnh dùng trên lớp để sinh viên học blockchain bằng trải nghiệm có khóa bước:
 
-`Transaction -> Mempool -> Block -> Hash -> Mining -> Chain -> Tamper -> Consensus`
+`Thử hành động -> bị chặn hoặc đi qua gate -> đọc giải thích đúng lúc -> trả lời quiz gate -> mở bước tiếp theo`
 
-## Chạy Trên Máy
+## Cách Chạy
 
-Mở `index.html` bằng trình duyệt, hoặc serve thư mục này bằng bất kỳ static web server nào.
+Mở trực tiếp trên GitHub Pages:
 
-## Đưa Lên GitHub Pages
+`https://fandzung.github.io/blockchainsimulation/`
 
-1. Push thư mục này lên một GitHub repository.
-2. Mở phần settings của repository.
-3. Vào Pages.
-4. Chọn branch và root folder.
-5. Mở URL GitHub Pages được tạo.
+Hoặc chạy local bằng cách mở `index.html`, hay serve thư mục này bằng static web server.
 
-Không cần backend, database, ví crypto, MetaMask, hoặc tài khoản GitHub cho sinh viên.
+## Ý Đồ Sư Phạm
 
-## Yêu Cầu Kỹ Thuật Và Kết Nối
+App không phải là dashboard demo để bấm tự do. Sinh viên đóng vai một node trong mạng blockchain và phải đi qua từng cơ chế theo trình tự:
 
-- Hosting: GitHub Pages hoặc bất kỳ static web host nào.
-- Runtime: trình duyệt hiện đại có bật JavaScript.
-- Tài khoản sinh viên: không cần.
+1. Intro mission
+2. Chọn giao dịch hợp lệ từ mempool
+3. Tạo block ứng viên
+4. Thử nonce thủ công
+5. Auto-mine và thêm block vào chain
+6. Tạo block thứ hai và quan sát previous hash
+7. Sửa dữ liệu cũ để làm chain invalid
+8. Re-mine sau khi sửa lịch sử
+9. Fork và đồng thuận
+10. Final challenge
+
+Mỗi bước bị khóa cho đến khi sinh viên hoàn thành hành động của bước trước và vượt quiz gate.
+
+## Thành Phần Học Tập
+
+- **Mission map**: cho thấy bước nào đang mở, bước nào bị khóa, bước nào đã hoàn thành.
+- **Simulation area**: nơi sinh viên thao tác với transaction, block, nonce, mining, chain, tamper, fork.
+- **Learning panel**: chỉ giải thích đúng phần liên quan tới bước hiện tại.
+- **Gate status**: transaction gate, mining gate, chain link gate, consensus gate.
+- **Hint credit**: sinh viên phải trả lời mini-quiz để mua hint.
+- **Dictionary**: thuật ngữ mở khóa dần theo bước, không hiện toàn bộ từ đầu.
+- **Quiz gate**: câu hỏi tình huống, dùng để mở bước tiếp theo.
+- **Learning log**: ghi lại invalid transaction attempts, nonce attempts, blocks mined, tamper result, hints used, quiz attempts.
+
+## Yêu Cầu Kỹ Thuật
+
+- Hosting: GitHub Pages hoặc static web host.
 - Backend: không cần.
 - Database: không cần.
-- Wallet hoặc MetaMask: không cần.
-- Internet: cần để tải URL ban đầu. Sau khi tải xong, mô phỏng chạy trong trình duyệt.
-- Thiết lập lớp học: một thiết bị cho mỗi nhóm sinh viên là đủ.
-- Phương án dự phòng: tải repository dạng ZIP và mở/serve local nếu mạng lớp học chặn GitHub Pages.
+- Tài khoản sinh viên: không cần.
+- Trình duyệt: Chrome, Edge, Firefox, Safari hiện đại có bật JavaScript.
 
-## Cách Dùng Trong Lớp
+## GitHub Pages
 
-- Dùng phần hướng dẫn ở đầu app.
-- Dùng panel Cổng cơ chế làm bề mặt giảng dạy chính: mỗi hành động quan trọng nên tạo ra một khoảnh khắc đi qua, bị chặn, bị reject, hoặc verify, kèm giải thích.
-- Sinh viên chọn transaction từ mempool.
-- Sinh viên đào block bằng cách tìm nonce làm hash bắt đầu bằng đủ số 0 theo độ khó.
-- Chain view cho thấy mỗi block liên kết với block trước bằng previous hash.
-- Tamper lab cho thấy vì sao sửa dữ liệu cũ làm chain invalid.
-- Fork lab cho thấy các block hợp lệ có thể cạnh tranh và cần consensus.
-- Quiz kiểm tra sinh viên có hiểu cơ chế phía sau từng bước hay không.
-
-## Hoàn Thành Assignment
-
-Giảng viên đặt điểm đạt trong phần quiz. Một nhóm được coi là hoàn thành khi kết quả quiz hiện `Assignment đã hoàn thành`.
-
-Gợi ý ngưỡng điểm:
-
-- 70% cho buổi nhập môn đầu tiên.
-- 80% nếu sinh viên đã có tài liệu đọc trước.
-- 90% cho kiểm tra mastery có tính điểm.
-
-Quiz được thiết kế để kiểm tra cơ chế, không kiểm tra học thuộc:
-
-- vì sao transaction không hợp lệ bị chặn;
-- mempool là gì;
-- vì sao previous hash nối lịch sử;
-- miner tìm gì trong Proof-of-Work;
-- vì sao node phải verify block;
-- reward nên được ghi nhận khi nào;
-- vì sao tamper làm chain invalid;
-- fork và consensus hoạt động như thế nào.
+Repo đã có workflow `.github/workflows/pages.yml`. Mỗi lần push lên `main`, GitHub Actions sẽ deploy lại Pages.
