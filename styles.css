@@ -261,6 +261,48 @@ code {
   gap: 8px;
 }
 
+.investigation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.source-card {
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.source-card summary {
+  cursor: pointer;
+  font-weight: 850;
+}
+
+.source-card p {
+  margin: 8px 0 0;
+  color: #34414b;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.source-table {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.source-table div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px;
+  border-radius: 6px;
+  background: #f6f8fa;
+  font-size: 13px;
+}
+
 .tx-card {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -534,7 +576,8 @@ code {
 
   .learning-log,
   .grid-2,
-  .grid-3 {
+  .grid-3,
+  .investigation-grid {
     grid-template-columns: 1fr;
   }
 }

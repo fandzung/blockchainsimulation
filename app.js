@@ -9,6 +9,34 @@ const transactions = [
   { id: "TX08", type: "CONTRACT_CALL", from: "Shop", to: "BankContract", amount: 0, fee: 6, minFee: 2, required: "calldata + signature", calldata: true, signed: true, balance: 180, nonce: 11 }
 ];
 
+const accountLedger = {
+  An: 80,
+  Café: 45,
+  Châu: 50,
+  Mai: 70,
+  "Kho bạc": 120,
+  Oracle: 10,
+  Lan: 40,
+  Shop: 180
+};
+
+const oracleFeed = [
+  { feed: "ETH_USD", lastUpdate: "09:03", status: "fresh", availableFor: ["TX09"] },
+  { feed: "BTC_USD", lastUpdate: "09:01", status: "fresh", availableFor: [] },
+  { feed: "PRICE_CONTRACT_UPDATE", lastUpdate: "missing", status: "missing", availableFor: [] }
+];
+
+const contractRequirements = {
+  TOKEN_TRANSFER: "Cần calldata thể hiện hàm token transfer và chữ ký hợp lệ.",
+  CONTRACT_CALL: "Cần calldata thể hiện hàm contract muốn gọi và chữ ký hợp lệ.",
+  ORACLE_UPDATE: "Cần oracle data mới từ đúng feed mà contract yêu cầu, kèm chữ ký.",
+  DEPENDENT_TX: "Parent transaction phải cùng được chọn hoặc đã confirmed."
+};
+
+const dependencyBook = {
+  TX07: "Phụ thuộc TX02. Nếu TX02 không được chọn hoặc chưa confirmed, TX07 chưa đủ điều kiện."
+};
+
 const steps = [
   { title: "Intro mission", terms: ["node"], mission: "Bạn là một node trong mạng blockchain. Nhiệm vụ của bạn là tạo các block mà mạng có thể chấp nhận." },
   { title: "Chọn giao dịch hợp lệ", terms: ["transaction", "mempool", "valid transaction"], mission: "Chọn giao dịch từ mempool để tạo block ứng viên. Mạng sẽ không nói trước giao dịch nào sai." },
@@ -46,7 +74,7 @@ const dictionary = {
 
 const quizGates = {
   0: { q: "Bạn đang đóng vai gì trong mô phỏng này?", a: 0, options: ["Một node kiểm tra và chấp nhận block theo rule", "Một ngân hàng trung tâm quyết định mọi giao dịch", "Một ví chỉ gửi tiền nhưng không kiểm tra gì"] },
-  1: { q: "Bạn nhìn thấy TX03 có amount 92, fee 4, balance 50. Vì sao transaction gate từ chối TX03?", a: 1, options: ["Vì TX03 thiếu calldata", "Vì sender cần 96 nhưng chỉ có balance 50", "Vì previous hash không khớp"] },
+  1: { q: "TX06 là ORACLE_UPDATE. Bạn phải tra nguồn nào để biết nó có đủ dữ liệu bắt buộc hay không?", a: 2, options: ["Account Ledger", "Dependency View", "Oracle Feed và Contract / Payload Requirements"] },
   2: { q: "Vì sao block ứng viên có giao dịch hợp lệ vẫn chưa được accept?", a: 2, options: ["Vì mempool bị rỗng", "Vì chưa có tên miner", "Vì hash chưa đạt difficulty nên mining gate chưa qua"] },
   3: { q: "Bạn nhập nhiều nonce và hash thay đổi liên tục. Điều này cho thấy gì?", a: 0, options: ["Nonce thay đổi đầu vào hash của block", "Nonce là số thứ tự transaction", "Nonce càng lớn thì chắc chắn càng đúng"] },
   4: { q: "Vì sao Auto-mine phải thử nhiều nonce trước khi block được chấp nhận?", a: 1, options: ["Vì node không biết sender là ai", "Vì cần tìm nonce làm hash đạt difficulty target", "Vì mempool chỉ cho chọn một giao dịch"] },
@@ -58,7 +86,7 @@ const quizGates = {
 };
 
 const hints = {
-  1: "Đọc rule như checklist: fee có đủ min fee không, balance có đủ amount + fee không, dữ liệu bắt buộc có mặt không, dependency đã được chọn chưa.",
+  1: "Đừng chỉ đọc transaction card. Hãy mở Account Ledger, Oracle Feed, Contract Requirements và Dependency View rồi đối chiếu với Rulebook.",
   2: "So sánh transaction gate và mining gate: một gate kiểm tra dữ liệu, gate kia kiểm tra Proof-of-Work.",
   3: "Đừng cố đoán nonce đúng ngay. Hãy quan sát mỗi nonce làm hash đổi như thế nào.",
   4: "Mining là thử nhiều nonce cho đến khi hash đạt rule, không phải giải ngược hash.",
@@ -296,26 +324,21 @@ function renderTransactions() {
   return `
     <div class="work-card">
       <h3>Mempool</h3>
-      <p>Chọn tối đa 3 giao dịch để tạo block ứng viên. Hệ thống chưa đánh dấu trước giao dịch nào sai, nhưng bạn có đủ dữ kiện để kiểm tra.</p>
-      <div class="mission-card">
-        <h3>Rule của transaction gate</h3>
-        <p>Một giao dịch đi qua gate nếu: fee ≥ min fee; sender đủ balance cho amount + fee; có chữ ký; contract call có calldata; oracle update có oracle data; dependent transaction có parent được chọn.</p>
-      </div>
+      <p>Chọn tối đa 3 giao dịch để tạo block ứng viên. Transaction card chỉ là thông tin broadcast; muốn biết có hợp lệ không, bạn phải tự tra cứu các nguồn dữ liệu bên dưới.</p>
+      ${renderInvestigationSources()}
       <div class="tx-grid">
         ${transactions.map((tx) => {
           const checked = state.selectedTx.has(tx.id);
           const revealed = state.revealedTx.has(tx.id);
           const ok = txValid(tx);
-          const needs = tx.amount + tx.fee;
           return `
             <label class="tx-card ${revealed ? ok ? "revealed-good" : "revealed-bad" : ""}">
               <input type="checkbox" data-tx="${tx.id}" ${checked ? "checked" : ""}>
               <span>
                 <p class="tx-title">${tx.id}: ${tx.type}</p>
                 <p class="tx-meta">${tx.from} → ${tx.to}</p>
-                <p class="tx-meta">Amount ${tx.amount}, fee ${tx.fee}, min fee ${tx.minFee}, balance ${tx.balance}, cần ${needs}</p>
-                <p class="tx-meta">Required: ${tx.required}. Có chữ ký: ${tx.signed ? "có" : "không"}. Calldata: ${tx.calldata ? "có" : "không cần/không có"}. Oracle data: ${tx.hasOracleData ? "có" : tx.type === "ORACLE_UPDATE" ? "không" : "không cần"}.</p>
-                ${tx.dependsOn ? `<p class="tx-meta">Dependency: cần chọn parent ${tx.dependsOn}</p>` : ""}
+                <p class="tx-meta">Amount ${tx.amount}, fee ${tx.fee}, nonce ${tx.nonce}</p>
+                <p class="tx-meta">Payload: ${tx.required}</p>
                 ${revealed ? `<p class="tx-meta"><strong>${ok ? "Passed" : "Failed"}:</strong> ${txReason(tx)}</p>` : ""}
               </span>
             </label>
@@ -325,6 +348,36 @@ function renderTransactions() {
       <div class="button-row">
         <button data-action="createCandidate">Tạo block ứng viên</button>
       </div>
+    </div>
+  `;
+}
+
+function renderInvestigationSources() {
+  return `
+    <div class="investigation-grid">
+      <details class="source-card" open>
+        <summary>Rulebook của transaction gate</summary>
+        <p>Fee phải đạt min fee. Sender phải đủ balance cho amount + fee. Giao dịch cần authorization/chữ ký. Contract call cần calldata. Oracle update cần oracle feed tương ứng. Dependent transaction cần parent.</p>
+      </details>
+      <details class="source-card">
+        <summary>Account Ledger</summary>
+        <div class="source-table">
+          ${Object.entries(accountLedger).map(([account, balance]) => `<div><span>${account}</span><strong>${balance}</strong></div>`).join("")}
+        </div>
+      </details>
+      <details class="source-card">
+        <summary>Oracle Feed</summary>
+        ${oracleFeed.map((feed) => `<p><strong>${feed.feed}</strong>: status ${feed.status}, last update ${feed.lastUpdate}</p>`).join("")}
+      </details>
+      <details class="source-card">
+        <summary>Contract / Payload Requirements</summary>
+        ${Object.entries(contractRequirements).map(([type, rule]) => `<p><strong>${type}</strong>: ${rule}</p>`).join("")}
+      </details>
+      <details class="source-card">
+        <summary>Dependency View</summary>
+        ${Object.entries(dependencyBook).map(([tx, rule]) => `<p><strong>${tx}</strong>: ${rule}</p>`).join("")}
+        <p>Các giao dịch không xuất hiện ở đây không có dependency đặc biệt trong mô phỏng.</p>
+      </details>
     </div>
   `;
 }
