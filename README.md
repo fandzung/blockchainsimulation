@@ -33,8 +33,6 @@ Không cần backend, database, ví crypto, MetaMask, hoặc tài khoản GitHub
 ## Cách Dùng Trong Lớp
 
 - Dùng phần hướng dẫn ở đầu app.
-- Sinh viên theo tab Sinh viên như checklist thao tác.
-- Giảng viên chuyển sang tab Giảng viên để xem gợi ý điều phối và điều kiện hoàn thành.
 - Dùng panel Cổng cơ chế làm bề mặt giảng dạy chính: mỗi hành động quan trọng nên tạo ra một khoảnh khắc đi qua, bị chặn, bị reject, hoặc verify, kèm giải thích.
 - Sinh viên chọn transaction từ mempool.
 - Sinh viên đào block bằng cách tìm nonce làm hash bắt đầu bằng đủ số 0 theo độ khó.
@@ -42,12 +40,6 @@ Không cần backend, database, ví crypto, MetaMask, hoặc tài khoản GitHub
 - Tamper lab cho thấy vì sao sửa dữ liệu cũ làm chain invalid.
 - Fork lab cho thấy các block hợp lệ có thể cạnh tranh và cần consensus.
 - Quiz kiểm tra sinh viên có hiểu cơ chế phía sau từng bước hay không.
-
-## Có Cần Tách Giao Diện Không?
-
-Phiên bản này dùng một giao diện chung với tab Sinh viên và Giảng viên. Cách này giữ setup đơn giản cho GitHub Pages và không cần account hoặc phân quyền.
-
-Chỉ nên tách riêng giao diện instructor/student nếu lớp học cần ẩn đáp án quiz, xuất điểm, phòng multiplayer, hoặc control chỉ dành cho giảng viên.
 
 ## Hoàn Thành Assignment
 

@@ -24,42 +24,18 @@
           <p class="eyebrow">Cách chạy mô phỏng</p>
           <h2 id="guideTitle">Hành trình đi qua cơ chế Blockchain</h2>
         </div>
-        <div class="role-tabs" role="tablist" aria-label="Guide role">
-          <button id="studentGuideTab" class="role-tab active" type="button">Sinh viên</button>
-          <button id="instructorGuideTab" class="role-tab" type="button">Giảng viên</button>
-        </div>
       </div>
 
       <div id="studentGuide" class="guide-content active">
         <ol class="guide-steps">
-          <li><strong>Chọn giao dịch:</strong> chọn tối đa 3 giao dịch trong mempool.</li>
-          <li><strong>Tạo block ứng viên:</strong> quan sát hash block trước, Merkle root, nonce, độ khó và phần thưởng.</li>
-          <li><strong>Đào block:</strong> thử nhập nonce thủ công hoặc dùng Tự động đào cho đến khi hash đạt target.</li>
+          <li><strong>Đừng chỉ bấm cho xong:</strong> sau mỗi thao tác, đọc phần Cổng cơ chế để hiểu vì sao hệ thống cho đi tiếp hoặc chặn lại.</li>
+          <li><strong>Thử cả đúng và sai:</strong> chọn thử giao dịch không hợp lệ, nhập thử nonce sai, rồi quan sát hệ thống reject ở đâu.</li>
+          <li><strong>Tạo block ứng viên:</strong> quan sát hash block trước, Merkle root, nonce, độ khó và phần thưởng trước khi đào.</li>
+          <li><strong>Đào block:</strong> thử nhập nonce thủ công trước, sau đó mới dùng Tự động đào để thấy Proof-of-Work là quá trình thử nhiều nonce.</li>
           <li><strong>Kiểm tra chuỗi:</strong> xem mỗi block liên kết với block trước bằng previous hash như thế nào.</li>
-          <li><strong>Chạy thử nghiệm:</strong> dùng sửa dữ liệu và phân nhánh để thấy vì sao kiểm tra hợp lệ và đồng thuận quan trọng.</li>
+          <li><strong>Phá rồi kiểm tra:</strong> sửa dữ liệu và tạo phân nhánh để thấy vì sao blockchain cần kiểm tra hợp lệ và đồng thuận.</li>
           <li><strong>Hoàn thành bài nộp:</strong> trả lời bài trắc nghiệm. Nhóm hoàn thành khi trạng thái hiện Đã hoàn thành.</li>
         </ol>
-      </div>
-
-      <div id="instructorGuide" class="guide-content">
-        <div class="instructor-grid">
-          <div>
-            <h3>Luồng gợi ý</h3>
-            <ol class="guide-steps">
-              <li>Bắt đầu với độ khó Dễ hoặc Bình thường.</li>
-              <li>Hỏi vì sao giao dịch không hợp lệ bị chặn trước khi đi tiếp.</li>
-              <li>Dừng trước khi đào và hỏi dữ liệu nào đi vào block hash.</li>
-              <li>Sau khi đào, nhấn mạnh rằng mạng thật phải kiểm tra hợp lệ trước khi chấp nhận block.</li>
-              <li>Dùng sửa dữ liệu để thảo luận về liên kết hash và việc sửa lịch sử.</li>
-              <li>Dùng phân nhánh để thảo luận về bất đồng tạm thời và đồng thuận.</li>
-            </ol>
-          </div>
-          <div>
-            <h3>Điều kiện hoàn thành</h3>
-            <p>Đặt điểm đạt trong phần trắc nghiệm. Một nhóm chỉ hoàn thành bài nộp khi trạng thái quiz trở thành <strong>Đã hoàn thành</strong>.</p>
-            <p>Dùng feedback của quiz để debrief: mỗi câu trả lời đều có cơ chế và lý do cơ chế đó tồn tại.</p>
-          </div>
-        </div>
       </div>
     </section>
 

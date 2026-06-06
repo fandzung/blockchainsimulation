@@ -166,10 +166,6 @@ const els = {
   quizResult: document.querySelector("#quizResult"),
   studentNameInput: document.querySelector("#studentNameInput"),
   passingScoreInput: document.querySelector("#passingScoreInput"),
-  studentGuideTab: document.querySelector("#studentGuideTab"),
-  instructorGuideTab: document.querySelector("#instructorGuideTab"),
-  studentGuide: document.querySelector("#studentGuide"),
-  instructorGuide: document.querySelector("#instructorGuide"),
   gateResult: document.querySelector("#gateResult"),
   gateMechanism: document.querySelector("#gateMechanism"),
   gateMeaning: document.querySelector("#gateMeaning"),
@@ -717,14 +713,6 @@ function resetQuiz() {
   els.quizResult.textContent = "Hoàn thành mô phỏng, sau đó trả lời quiz để kết thúc assignment.";
 }
 
-function setGuideRole(role) {
-  const instructor = role === "instructor";
-  els.studentGuideTab.classList.toggle("active", !instructor);
-  els.instructorGuideTab.classList.toggle("active", instructor);
-  els.studentGuide.classList.toggle("active", !instructor);
-  els.instructorGuide.classList.toggle("active", instructor);
-}
-
 document.querySelector("#mempoolRows").addEventListener("change", async (event) => {
   const txId = event.target.dataset.tx;
   if (!txId) return;
@@ -766,8 +754,6 @@ document.querySelector("#tamperBtn").addEventListener("click", tamperLastBlock);
 document.querySelector("#forkBtn").addEventListener("click", createForkDemo);
 document.querySelector("#submitQuizBtn").addEventListener("click", submitQuiz);
 document.querySelector("#resetQuizBtn").addEventListener("click", resetQuiz);
-document.querySelector("#studentGuideTab").addEventListener("click", () => setGuideRole("student"));
-document.querySelector("#instructorGuideTab").addEventListener("click", () => setGuideRole("instructor"));
 document.querySelector("#resetBtn").addEventListener("click", async () => {
   state.mempool = clone(initialTransactions);
   state.selected = new Set();

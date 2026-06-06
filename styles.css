@@ -122,29 +122,6 @@ code {
   margin: 0;
 }
 
-.role-tabs {
-  display: inline-flex;
-  gap: 4px;
-  padding: 4px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #f0f3f5;
-}
-
-.role-tab {
-  min-height: 34px;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--muted);
-  padding: 0 12px;
-}
-
-.role-tab.active {
-  background: var(--surface);
-  color: var(--ink);
-  box-shadow: 0 1px 4px rgba(24, 32, 38, 0.12);
-}
-
 .guide-content {
   display: none;
 }
@@ -162,23 +139,6 @@ code {
 
 .guide-steps li + li {
   margin-top: 6px;
-}
-
-.instructor-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
-  gap: 18px;
-}
-
-.instructor-grid h3 {
-  margin: 0 0 8px;
-  font-size: 16px;
-}
-
-.instructor-grid p {
-  margin: 0 0 10px;
-  color: #34414b;
-  line-height: 1.5;
 }
 
 .gate-panel {
@@ -561,7 +521,6 @@ select {
   .block-preview,
   .fork-grid,
   .quiz-config,
-  .instructor-grid,
   .gate-grid {
     grid-template-columns: 1fr;
   }
